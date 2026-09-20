@@ -7,10 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NHost.AspNetCore" Version="1.0.0" />
+    <PackageReference Include="NHost.Database" Version="1.0.0" />
+    <PackageReference Include="NHost.Services" Version="1.0.0" />
+    <PackageReference Include="NHost.Auth" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\frontend\frontend.csproj" />
   </ItemGroup>
 
 </Project>

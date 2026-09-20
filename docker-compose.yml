@@ -17,7 +17,7 @@ services:
       - dartcup-network
     restart: unless-stopped
 
-  # Redis for caching/sessions
+  # Redis for caching/sessions (optional for NHost)
   redis:
     image: redis:7-alpine
     container_name: dartcup-redis
@@ -25,6 +25,29 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - dartcup-network
+    restart: unless-stopped
+
+  # Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: dartcup-backend
+    ports:
+      - "5000:80"
+      - "5001:443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80;https://+:443
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=dartcup;Username=postgres;Password=postgres
+      - Jwt__Secret=CHANGE_THIS_TO_A_STRONG_SECRET_KEY_1234567890
+      - Jwt__Issuer=dartcup-backend
+      - Jwt__Audience=dartcup-backend
+    depends_on:
+      - postgres
+      - redis
     networks:
       - dartcup-network
     restart: unless-stopped
