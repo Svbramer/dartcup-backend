@@ -1,0 +1,37 @@
+{
+  "name": "dartcup-backend",
+  "region": "eu-central-1",
+  "backend": {
+    "type": "nhost",
+    "version": "v1"
+  },
+  "database": {
+    "type": "postgresql",
+    "version": "15"
+  },
+  "auth": {
+    "providers": [
+      {
+        "type": "email-password",
+        "enabled": true
+      },
+      {
+        "type": "google",
+        "enabled": true,
+        "clientId": "YOUR_GOOGLE_CLIENT_ID",
+        "clientSecret": "YOUR_GOOGLE_CLIENT_SECRET"
+      }
+    ],
+    "jwt": {
+      "secret": "CHANGE_THIS_TO_A_STRONG_SECRET_KEY_1234567890",
+      "expiry": 3600
+    }
+  },
+  "storage": {
+    "enabled": true,
+    "provider": "local"
+  },
+  "functions": {
+    "enabled": true
+  }
+}
