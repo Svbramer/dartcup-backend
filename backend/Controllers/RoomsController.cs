@@ -112,11 +112,11 @@ public class RoomsController : ControllerBase
     }
 
     [HttpPost("{id}/scores/{entryId}/confirm")]
-    public async Task<IActionResult> ConfirmScore(Guid id, Guid entryId)
+    public async Task<IActionResult> ConfirmScore(Guid id, Guid entryId, [FromBody] ConfirmScoreRequest request)
     {
         try
         {
-            var room = await _roomService.ConfirmScoreAsync(id, entryId, GetUserId());
+            var room = await _roomService.ConfirmScoreAsync(id, entryId, GetUserId(), request.EndTurn);
             return Ok(RoomDto(room));
         }
         catch (InvalidOperationException ex)
@@ -152,6 +152,20 @@ public class RoomsController : ControllerBase
         var room = await _roomService.ReturnBoardAsync(id, request.SessionId);
         return Ok(RoomDto(room));
     }
+
+    [HttpPost("{id}/turn/end")]
+    public async Task<IActionResult> EndTurn(Guid id, [FromBody] BoardSessionRequest request)
+    {
+        try
+        {
+            var room = await _roomService.EndTurnAsync(id, request.SessionId);
+            return Ok(RoomDto(room));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { Message = ex.Message });
+        }
+    }
 }
 
 public class CreateRoomRequest
@@ -180,6 +194,11 @@ public class AddScoreRequest
 public class UpdateScoreRequest
 {
     public int Value { get; set; }
+}
+
+public class ConfirmScoreRequest
+{
+    public bool EndTurn { get; set; } = true;
 }
 
 public class BoardSessionRequest

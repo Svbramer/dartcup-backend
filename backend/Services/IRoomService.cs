@@ -13,10 +13,11 @@ public interface IRoomService
     Task<RoomSession> AddSessionAsync(Guid roomId, Guid userId, string deviceName, string roles);
     Task<ScoreEntry> AddScoreAsync(Guid roomId, Guid sessionId, Guid userId, int visitNumber, int value);
     Task<ScoreEntry> UpdatePendingScoreAsync(Guid roomId, Guid entryId, Guid userId, int value);
-    Task<Room> ConfirmScoreAsync(Guid roomId, Guid entryId, Guid userId);
+    Task<Room> ConfirmScoreAsync(Guid roomId, Guid entryId, Guid userId, bool endTurn);
     Task<Room> RequestBoardAsync(Guid roomId, Guid sessionId);
     Task<Room> GrantBoardAsync(Guid roomId, Guid holderSessionId, Guid targetSessionId);
     Task<Room> ReturnBoardAsync(Guid roomId, Guid sessionId);
+    Task<Room> EndTurnAsync(Guid roomId, Guid sessionId);
     string GenerateCode();
 }
 
@@ -145,7 +146,7 @@ public class RoomService : IRoomService
         return entry;
     }
 
-    public async Task<Room> ConfirmScoreAsync(Guid roomId, Guid entryId, Guid userId)
+    public async Task<Room> ConfirmScoreAsync(Guid roomId, Guid entryId, Guid userId, bool endTurn)
     {
         var room = await GetRoomAsync(roomId) ?? throw new KeyNotFoundException("Room not found");
         var entry = room.ScoreEntries.FirstOrDefault(e => e.Id == entryId)
@@ -156,11 +157,14 @@ public class RoomService : IRoomService
         entry.Status = "confirmed";
         entry.ConfirmedAt = DateTime.UtcNow;
 
-        room.CurrentTurn = room.CurrentTurn == 1 ? 2 : 1;
-        room.BoardRequestFromSessionId = null;
-        var nextUserId = room.CurrentTurn == 1 ? room.Player1Id : room.Player2Id!.Value;
-        var nextSession = room.Sessions.FirstOrDefault(s => s.UserId == nextUserId);
-        room.BoardHolderSessionId = nextSession?.Id;
+        if (endTurn)
+        {
+            room.CurrentTurn = room.CurrentTurn == 1 ? 2 : 1;
+            room.BoardRequestFromSessionId = null;
+            var nextUserId = room.CurrentTurn == 1 ? room.Player1Id : room.Player2Id!.Value;
+            var nextSession = room.Sessions.FirstOrDefault(s => s.UserId == nextUserId);
+            room.BoardHolderSessionId = nextSession?.Id;
+        }
 
         await _context.SaveChangesAsync();
         return room;
@@ -198,6 +202,21 @@ public class RoomService : IRoomService
         var turnSession = room.Sessions.FirstOrDefault(s => s.UserId == turnUserId);
         room.BoardHolderSessionId = turnSession?.Id;
         room.BoardRequestFromSessionId = null;
+        await _context.SaveChangesAsync();
+        return room;
+    }
+
+    public async Task<Room> EndTurnAsync(Guid roomId, Guid sessionId)
+    {
+        var room = await GetRoomAsync(roomId) ?? throw new KeyNotFoundException("Room not found");
+        if (room.Status != "active") throw new InvalidOperationException("Room is not active");
+        if (room.BoardHolderSessionId != sessionId) throw new InvalidOperationException("You do not hold the board");
+
+        room.CurrentTurn = room.CurrentTurn == 1 ? 2 : 1;
+        room.BoardRequestFromSessionId = null;
+        var nextUserId = room.CurrentTurn == 1 ? room.Player1Id : room.Player2Id!.Value;
+        var nextSession = room.Sessions.FirstOrDefault(s => s.UserId == nextUserId);
+        room.BoardHolderSessionId = nextSession?.Id;
         await _context.SaveChangesAsync();
         return room;
     }
