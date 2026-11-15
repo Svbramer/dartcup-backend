@@ -38,3 +38,14 @@ CREATE TABLE IF NOT EXISTS "ScoreEntries" (
 
 CREATE INDEX IF NOT EXISTS "IX_RoomSessions_RoomId" ON "RoomSessions"("RoomId");
 CREATE INDEX IF NOT EXISTS "IX_ScoreEntries_RoomId" ON "ScoreEntries"("RoomId");
+
+-- WebRTC-signaling mellem kamera- og seer-enheder (polling i stedet for websockets)
+CREATE TABLE IF NOT EXISTS "Signals" (
+    "Id" bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "RoomId" uuid NOT NULL REFERENCES "Rooms"("Id") ON DELETE CASCADE,
+    "FromSession" uuid,
+    "Type" text NOT NULL,              -- offer | answer | candidate | camera-ready
+    "Payload" text NOT NULL,
+    "CreatedAt" timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS "IX_Signals_RoomId_Id" ON "Signals"("RoomId", "Id");

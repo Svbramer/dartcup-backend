@@ -1,42 +1,37 @@
-# NHost setup — Dart Cup Pro (trin for trin)
+# NHost setup — Dart Cup Pro (kopier-venlig guide)
 
-Projektet kører på NHost (subdomain `adqpgvjcesrgxxlbxjme`, region `eu-north-1`).
-Auth-URL som frontend bruger: `https://adqpgvjcesrgxxlbxjme.auth.eu-north-1.nhost.run/v1`
+Mål: hele online-spillet kører på NHost, så webhotellet kun skal vise statiske filer.
 
-## 1. Bekræft at projektet er vågent
-- `https://adqpgvjcesrgxxlbxjme.auth.eu-north-1.nhost.run/v1/healthz` → skal svare `"OK"`
-- `https://adqpgvjcesrgxxlbxjme.auth.eu-north-1.nhost.run/v1/version` → viser auth-version
+Dit NHost-projekt: subdomain `adqpgvjcesrgxxlbxjme`, region `eu-north-1`
+- Auth: `https://adqpgvjcesrgxxlbxjme.auth.eu-north-1.nhost.run/v1`
+- GraphQL: `https://adqpgvjcesrgxxlbxjme.graphql.eu-north-1.nhost.run/v1/graphql`
 
-## 2. Auth-indstillinger (NHost Console)
-1. Log ind på https://app.nhost.io → vælg projektet
-2. **Authentication → Providers → Email**: sørg for at **email-verification er slået til**
-   (så signup returnerer ingen session med det samme, og login.html viser "bekræftelses-mail sendt" — det matcher PR #5 i `Svbramer/dartcup`)
-3. **Authentication → SMTP**: tilslut en SMTP-udbyder (eller brug NHosts test-mail i udvikling), ellers kan bekræftelsesmails ikke sendes
+## Trin 1 — Kør SQL (kopier ind i NHost Console)
+1. Log ind på https://app.nhost.io → dit projekt → **Database → SQL**
+2. Kopier hele indholdet af filen `db/online_rooms.sql` (ligger i dette repo) ind og kør den
+3. Tjek at tabellerne kom: `Rooms`, `RoomSessions`, `ScoreEntries`, `Signals`
 
-## 3. Database (Postgres på NHost)
-Hent connection string i NHost Console: **Database → Connect → Connection string**.
+## Trin 2 — Track tabeller + giv rettigheder (klik, ikke kode)
+1. **GraphQL → Data** i NHost Console
+2. For hver af de 4 tabeller: klik "Track table"
+3. For hver tabel: **Permissions → role `user`** → sæt flue i **select, insert, update** (delete ikke nødvendig)
+   - Dette gør at alle indloggede brugere må læse/skrive i rum-tabellerne
 
-Sæt den i backend via miljøvariabel (lokalt eller på server):
-```
-ConnectionStrings__DefaultConnection=<connection string fra NHost>
-```
+## Trin 3 — Auth-indstillinger
+1. **Authentication → Providers → Email**: slå **email-verification TIL**
+2. **Authentication → SMTP**: tilslut en SMTP-udbyder (f.eks. Brevo gratis-plan), så bekræftelsesmails kan sendes
 
-### Opret tabellerne til online rooms
-Vælg én af:
-- **A (anbefalet):** Lad EF lave skemaet — backend kører `EnsureCreated()`/`Migrate()` automatisk ved startup (se `Program.cs`). Så skal du ikke køre SQL selv.
-- **B:** Kør `db/online_rooms.sql` manuelt i NHost Console (SQL editor) eller via psql.
+## Trin 4 — Frontend på webhotellet
+Upload kun statiske filer fra `Svbramer/dartcup` (branch `vibe/online-nhost-frontend-4f4acf`):
+`index.html`, `login.html`, `online.html`, `assets/`, ikonerne, `manifest.webmanifest`, `sw.js`
 
-## 4. Kør .NET-backend et sted med .NET 8
-NHost hoster ikke selv .NET-kode, så backend skal køre et sted der kan køre .NET 8 + Docker:
-- **Lokalt til test:** `docker-compose up -d` er kun til lokal Postgres; i stedet sæt connection string til NHost (punkt 3) og kør `cd backend && dotnet run`
-- **Produktion:** en lille VPS (f.eks. Hetzner) eller Azure/Railway/Render med Docker — peg `ConnectionStrings__DefaultConnection` på NHost Postgres
+I `online.html` står NHost-URL'erne øverst (`NHOST_SUBDOMAIN`, `NHOST_REGION`) — de passer allerede til dit projekt.
 
-## 5. Frontend (`Svbramer/dartcup`)
-- `login.html` peger allerede på NHost auth ✅
-- `online.html`: ret `var API_BASE = "..."` øverst til den URL hvor .NET-backend kører (f.eks. `https://api.ditdomæne.dk`)
-- Upload de statiske filer (index.html, login.html, online.html, assets/, ikoner) til dit webhotel
+## Trin 5 — Test
+1. `login.html` på to enheder → opret bruger samme konto (bekræft mailen) → log ind
+2. `online.html` på begge → "Opret kamp" → kode → "Deltag" på den anden
+3. Vælg roller → spil 201 → tavle-indikatoren skifter med lyd → kamera viser modstanderens skive
 
-## 6. Test end-to-end
-1. Åbn `login.html` på to enheder → opret/log ind med samme konto
-2. `online.html` på begge → "Opret kamp" giver kode → "Deltag" med koden på den anden
-3. Vælg roller (kamera / score+se) → spil 201 → tavle-indikatoren skifter grøn/grå med lyd
+## Bemærkninger
+- Realtime kører som polling (hver 2. sek.) via GraphQL — virker overalt, også hvor websockets er lukket
+- .NET-backend'en (`backend/`) er ikke nødvendig for denne løsning; behold den hvis du senere vil have liga/cup på serveren
