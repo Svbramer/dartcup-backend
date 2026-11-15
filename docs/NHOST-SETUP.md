@@ -24,7 +24,7 @@ ConnectionStrings__DefaultConnection=<connection string fra NHost>
 ### Opret tabellerne til online rooms
 Vælg én af:
 - **A (anbefalet):** Lad EF lave skemaet — backend kører `EnsureCreated()`/`Migrate()` automatisk ved startup (se `Program.cs`). Så skal du ikke køre SQL selv.
-- **B:** Kør `nhost/sql/online_rooms.sql` manuelt i NHost Console (SQL editor) eller via psql.
+- **B:** Kør `db/online_rooms.sql` manuelt i NHost Console (SQL editor) eller via psql.
 
 ## 4. Kør .NET-backend et sted med .NET 8
 NHost hoster ikke selv .NET-kode, så backend skal køre et sted der kan køre .NET 8 + Docker:
