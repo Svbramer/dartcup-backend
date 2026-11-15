@@ -26,6 +26,7 @@ builder.Services.AddScoped<IPlayerService, PlayerService>();
 builder.Services.AddScoped<IMatchService, MatchService>();
 builder.Services.AddScoped<ILeagueService, LeagueService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IRoomService, RoomService>();
 
 // Add controllers
 builder.Services.AddControllers();
@@ -79,5 +80,25 @@ public class DartCupHub : Hub
     public async Task SendChatMessage(string userId, string userName, string message)
     {
         await Clients.All.SendAsync("ChatMessage", new { UserId = userId, UserName = userName, Message = message, Timestamp = DateTime.UtcNow });
+    }
+
+    public async Task JoinRoom(string code)
+    {
+        await Groups.AddToGroupAsync(Context.ConnectionId, code.ToUpperInvariant());
+    }
+
+    public async Task LeaveRoom(string code)
+    {
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, code.ToUpperInvariant());
+    }
+
+    public async Task SendSignal(string code, string payload)
+    {
+        await Clients.OthersInGroup(code.ToUpperInvariant()).SendAsync("Signal", payload);
+    }
+
+    public async Task Notify(string code, string eventName, string payload)
+    {
+        await Clients.OthersInGroup(code.ToUpperInvariant()).SendAsync(eventName, payload);
     }
 }

@@ -16,7 +16,10 @@ public class DartCupDbContext : DbContext
     public DbSet<League> Leagues { get; set; }
     public DbSet<LeagueStanding> LeagueStandings { get; set; }
     public DbSet<TrainingImage> TrainingImages { get; set; }
-    
+    public DbSet<Room> Rooms { get; set; }
+    public DbSet<RoomSession> RoomSessions { get; set; }
+    public DbSet<ScoreEntry> ScoreEntries { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Configure User -> UserStats relationship
@@ -74,5 +77,20 @@ public class DartCupDbContext : DbContext
             .HasOne(t => t.User)
             .WithMany()
             .HasForeignKey(t => t.UserId);
+
+        // Configure Room relationships
+        modelBuilder.Entity<Room>()
+            .HasMany(r => r.Sessions)
+            .WithOne(s => s.Room)
+            .HasForeignKey(s => s.RoomId);
+
+        modelBuilder.Entity<Room>()
+            .HasMany(r => r.ScoreEntries)
+            .WithOne(e => e.Room)
+            .HasForeignKey(e => e.RoomId);
+
+        modelBuilder.Entity<Room>()
+            .HasIndex(r => r.Code)
+            .IsUnique();
     }
 }
