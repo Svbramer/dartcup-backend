@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using DartCupBackend.Services;
 using DartCupBackend.Controllers;
+using DartCupBackend.Database;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +48,18 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Auto-migrer databasen ved startup (praktisk i udvikling).
+// Hvis der findes EF-migrations, køres ventende migrations automatisk (Migrate),
+// ellers oprettes tabeller direkte ud fra modellerne (EnsureCreated).
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<DartCupDbContext>();
+    if (db.Database.GetMigrations().Any())
+        db.Database.Migrate();
+    else
+        db.Database.EnsureCreated();
+}
 
 // Use CORS
 app.UseCors("AllowAll");
