@@ -4,7 +4,7 @@ Mål: hele online-spillet kører på NHost, så webhotellet kun skal vise statis
 
 Dit NHost-projekt: subdomain `adqpgvjcesrgxxlbxjme`, region `eu-north-1`
 - Auth: `https://adqpgvjcesrgxxlbxjme.auth.eu-north-1.nhost.run/v1`
-- GraphQL: `https://adqpgvjcesrgxxlbxjme.graphql.eu-north-1.nhost.run/v1/graphql`
+- GraphQL: `https://adqpgvjcesrgxxlbxjme.graphql.eu-north-1.nhost.run/v1` (POST — bemærk: IKKE `/v1/graphql`, det giver 404)
 
 ## Trin 1 — Kør SQL (kopier ind i NHost Console)
 1. Log ind på https://app.nhost.io → dit projekt → i venstre menu klik **Database** → fanen **SQL**
