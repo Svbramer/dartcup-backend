@@ -22,6 +22,8 @@ Dit NHost-projekt: subdomain `adqpgvjcesrgxxlbxjme`, region `eu-north-1`
 1. Venstre menu → **Auth → Settings → Sign-In Methods → Email and Password**: sørg for at **"Require Verified Emails" er slået TIL** (det er standard — så får signup ingen session med det samme, og login.html viser "bekræftelses-mail sendt")
 2. **Auth → SMTP** (egen fane under Auth): udfyld SMTP-serveren fra din mail-udbyder, f.eks. Brevo gratis-plan:
    - Host: `smtp-relay.brevo.com` · Port: `587` · Brugernavn: din Brevo-konto-mail · Adgangskode: en SMTP API-nøgle fra Brevo
+   - Alternativ: Gmail med app-kode — Host `smtp.gmail.com`, Port `587`, brugernavn = gmail-adresse, password = app password (myaccount.google.com/apppasswords). Max ~100 mails/dag
+   - Bemærk: mail.com kræver Premium for SMTP — gratis konti virker ikke
    - Uden SMTP kan bekræftelsesmails ikke sendes
 
 ## Trin 4 — Frontend på webhotellet
