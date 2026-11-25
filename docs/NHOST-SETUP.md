@@ -7,14 +7,15 @@ Dit NHost-projekt: subdomain `adqpgvjcesrgxxlbxjme`, region `eu-north-1`
 - GraphQL: `https://adqpgvjcesrgxxlbxjme.graphql.eu-north-1.nhost.run/v1/graphql`
 
 ## Trin 1 — Kør SQL (kopier ind i NHost Console)
-1. Log ind på https://app.nhost.io → dit projekt → **Database → SQL**
+1. Log ind på https://app.nhost.io → dit projekt → i venstre menu klik **Database** → fanen **SQL**
 2. Kopier hele indholdet af filen `db/online_rooms.sql` (ligger i dette repo) ind og kør den
 3. Tjek at tabellerne kom: `Rooms`, `RoomSessions`, `ScoreEntries`, `Signals`
 
-## Trin 2 — Track tabeller + giv rettigheder (klik, ikke kode)
-1. **GraphQL → Data** i NHost Console
-2. For hver af de 4 tabeller: klik "Track table"
-3. For hver tabel: **Permissions → role `user`** → sæt flue i **select, insert, update** (delete ikke nødvendig)
+## Trin 2 — Track tabeller + giv rettigheder (i den nye NHost-konsol ligger det under Database, IKKE GraphQL→Data)
+1. Venstre menu → **Database** → fanen **Tables**
+2. Find hver af de 4 tabeller (`Rooms`, `RoomSessions`, `ScoreEntries`, `Signals`):
+   - Klik på **⋯ (tre punktummer)** ud for tabellen → vælg **Track** (så den bliver tilgængelig i GraphQL)
+   - Klik igen på **⋯** → **Edit Permissions** → tilføj role **`user`** → sæt flue i **select, insert, update** (delete ikke nødvendig) → gem
    - Dette gør at alle indloggede brugere må læse/skrive i rum-tabellerne
 
 ## Trin 3 — Auth-indstillinger
