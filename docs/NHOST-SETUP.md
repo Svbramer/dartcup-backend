@@ -16,6 +16,7 @@ Dit NHost-projekt: subdomain `adqpgvjcesrgxxlbxjme`, region `eu-north-1`
 2. Find hver af de 4 tabeller (`Rooms`, `RoomSessions`, `ScoreEntries`, `Signals`):
    - Klik på **⋯ (tre punktummer)** ud for tabellen → vælg **Track** (så den bliver tilgængelig i GraphQL)
    - Klik igen på **⋯** → **Edit Permissions** → tilføj role **`user`** → sæt flue i **select, insert, update** (delete ikke nødvendig) → gem
+   - **OBS for `Signals`:** ved Insert skal du fjerne fluen ved kolonnen **`Id`** (den er auto-tæller og ikke insertable — ellers får du fejlen "Column Id is not insertable")
    - Dette gør at alle indloggede brugere må læse/skrive i rum-tabellerne
 
 ## Trin 3 — Auth-indstillinger (i den nye NHost-konsol)
