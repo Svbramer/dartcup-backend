@@ -49,3 +49,13 @@ CREATE TABLE IF NOT EXISTS "Signals" (
     "CreatedAt" timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS "IX_Signals_RoomId_Id" ON "Signals"("RoomId", "Id");
+
+-- Træningsresultater pr. bruger (gemmes når man er logget ind)
+CREATE TABLE IF NOT EXISTS "TrainingResults" (
+    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    "UserId" uuid NOT NULL,
+    "GameId" text NOT NULL,          -- tonsplus, powerswitch, 121, doubletarget, jordenrundt
+    "Result" text NOT NULL,          -- JSON med statistik
+    "CreatedAt" timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS "IX_TrainingResults_UserId" ON "TrainingResults"("UserId");
