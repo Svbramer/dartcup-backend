@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS "Rooms" (
     "Player1Id" uuid NOT NULL,
     "Player2Id" uuid,
     "Status" text NOT NULL DEFAULT 'waiting',          -- waiting | active | finished
+    "Coop" boolean NOT NULL DEFAULT false,              -- true = spil sammen (co-op), false = mod hinanden
     "CurrentTurn" integer NOT NULL DEFAULT 1,           -- 1 = Player1, 2 = Player2
     "BoardHolderSessionId" uuid,
     "BoardRequestFromSessionId" uuid,
@@ -49,6 +50,9 @@ CREATE TABLE IF NOT EXISTS "Signals" (
     "CreatedAt" timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS "IX_Signals_RoomId_Id" ON "Signals"("RoomId", "Id");
+
+-- Eksisterende installationer:
+ALTER TABLE "Rooms" ADD COLUMN IF NOT EXISTS "Coop" boolean NOT NULL DEFAULT false;
 
 -- Træningsresultater pr. bruger (gemmes når man er logget ind)
 CREATE TABLE IF NOT EXISTS "TrainingResults" (
